@@ -398,15 +398,18 @@ async function fetchPlayerStats(id) {
 
 // ── MLB HEADLINES ──
 async function loadNews() {
-  const feeds = [
-    "https://www.mlb.com/feeds/news/rss.xml",
-    "https://www.espn.com/espn/rss/mlb/news"
+  const proxies = [
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   ];
-  for (const feed of feeds) {
+  const feed = "https://www.mlb.com/feeds/news/rss.xml";
+
+  for (const proxy of proxies) {
     try {
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feed)}`);
-      const data = await res.json();
-      const xml = new DOMParser().parseFromString(data.contents, "text/xml");
+      const res = await fetch(proxy(feed));
+      if (!res.ok) continue;
+      const text = await res.text();
+      const xml = new DOMParser().parseFromString(text, "text/xml");
       const items = [...xml.querySelectorAll("item")].slice(0, 8);
       if (!items.length) continue;
       document.getElementById("news-body").innerHTML =
