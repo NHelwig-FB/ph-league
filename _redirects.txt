@@ -1,0 +1,1 @@
+/mlb-news https://www.mlb.com/feeds/news/rss.xml 200
